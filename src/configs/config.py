@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Tuple, Union
 
 import yaml
 from omegaconf import OmegaConf
@@ -10,11 +9,26 @@ class _BaseValidatedConfig(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
 
-class ModuleConfig(_BaseValidatedConfig):
+class LLMConfig(_BaseValidatedConfig):
+    base_llm_url: str
     model_name: str
+    temperature: float
+    top_k: float
+    top_p: float
+    repeat_penalty: float
+    mirostat: int
+    mirostat_eta: float
+    mirostat_tau: float
+    num_predict: float
+    repeat_last_n: int
+    num_ctx: int
 
-class ExperimentConfig(_BaseValidatedConfig):
+class ProjectConfig(_BaseValidatedConfig):
     project_name: str
+    port: int
+    log_level: str
+    workers_number: int
+    llm: LLMConfig
 
     @classmethod
     def from_yaml(cls, path: Path | str) -> 'ExperimentConfig':

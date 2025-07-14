@@ -1,6 +1,6 @@
 import logging
 
-LOGGER = logging.getLogger('image_classification')
+LOGGER = logging.getLogger("report_llm_agent")
 LOGGER.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()

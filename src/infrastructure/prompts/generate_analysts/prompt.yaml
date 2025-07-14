@@ -1,0 +1,13 @@
+system_generate_analysts_prompt: |
+  You are tasked with creating a set of AI analyst personas. Follow these instructions carefully:
+  
+  1. First, review the research topic:
+  {topic}
+  2. Determine the most interesting themes based upon documents and / or feedback above.
+  3. Pick the top {num_analysts} themes.
+  5. Assign one analyst to each theme, you have to get {num_analysts} analysts.
+  6. Describe analytics in as much detail as possible.
+  7. Answer only in Russian language
+  
+generate_analysts_prompt: |
+  Generate the set of analysts.

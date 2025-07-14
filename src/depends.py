@@ -1,11 +1,18 @@
 from functools import lru_cache
+from pathlib import Path
 
-from src.depends import get_settings
+from langchain_openai import ChatOpenAI
 
-from src.chat.infrastucture.prompts.prompt_manager import (
+from src.configs.config import ProjectConfig
+from src.configs.constants import PROJECT_ROOT
+from src.infrastructure.prompts.prompt_manager import (
     ChatPromptBuilder,
     PromptManager
 )
+
+@lru_cache(maxsize=1)
+def get_settings() -> ProjectConfig:
+    return ProjectConfig.from_yaml(Path(PROJECT_ROOT, "configs", "llm_configs.yaml"))
 
 
 @lru_cache(maxsize=1)
@@ -15,10 +22,17 @@ def get_prompt_builder() -> ChatPromptBuilder:
 
 
 @lru_cache(maxsize=None)
-def get_llm_graph(temperature=0.8, top_k=40, top_p=0.9, repeat_penalty=1.1,
-                  mirostat=2, mirostat_eta=0.1, mirostat_tau=5.0,
-                  num_predict=128, repeat_last_n=64, num_ctx=10000
-                  ) -> ChatOllama:
+def get_llm_graph(temperature=get_settings().llm.temperature,
+                  top_k=get_settings().llm.top_k,
+                  top_p=get_settings().llm.top_p,
+                  repeat_penalty=get_settings().llm.repeat_penalty,
+                  mirostat=get_settings().llm.mirostat,
+                  mirostat_eta=get_settings().llm.mirostat_eta,
+                  mirostat_tau=get_settings().llm.mirostat_tau,
+                  num_predict=get_settings().llm.num_predict,
+                  repeat_last_n=get_settings().llm.repeat_last_n,
+                  num_ctx=get_settings().llm.num_ctx
+                  ) -> ChatOpenAI:
     """
     Args:
         temperature: The temperature of the model.
@@ -59,15 +73,19 @@ def get_llm_graph(temperature=0.8, top_k=40, top_p=0.9, repeat_penalty=1.1,
         object: Source llm with configured params
     """
     settings = get_settings()
-    llm = (base_url=settings.base_llm_url, model=settings.model_llm)
+    llm = ChatOpenAI(
+        base_url=settings.llm.base_llm_url,
+        model=settings.llm.model_name,
+        api_key="ollama"
+    )
     llm.temperature = temperature
-    llm.top_k = top_k
-    llm.top_p = top_p
-    llm.repeat_penalty = repeat_penalty
-    llm.mirostat = mirostat
-    llm.mirostat_eta = mirostat_eta
-    llm.mirostat_tau = mirostat_tau
-    llm.num_predict = num_predict
-    llm.repeat_last_n = repeat_last_n
-    llm.num_ctx = num_ctx
+    # llm.top_k = top_k
+    # llm.top_p = top_p
+    # llm.repeat_penalty = repeat_penalty
+    # llm.mirostat = mirostat
+    # llm.mirostat_eta = mirostat_eta
+    # llm.mirostat_tau = mirostat_tau
+    # llm.num_predict = num_predict
+    # llm.repeat_last_n = repeat_last_n
+    # llm.num_ctx = num_ctx
     return llm
