@@ -3,9 +3,9 @@ import logging
 
 from langgraph.graph import StateGraph, START, END
 
-from src.domains.llm_agent.app.requests.schemas import PostChatRequest
-from src.infrastructure.graph.schemas.generate_analysts import GenerateAnalystsState
-from src.infrastructure.graph.utils import create_analysts
+from src.domains.llm_agent.app.requests.schemas import PostGenerateAnalystsRequest
+from src.infrastructure.graphs.generate_analysts.schema import GenerateAnalystsState
+from src.infrastructure.graphs.generate_analysts.utils import create_analysts
 
 
 class GraphError(Exception):
@@ -32,7 +32,7 @@ class GenerateAnalystsGraph:
 
         return builder.compile()
 
-    async def process(self, state: PostChatRequest) -> GenerateAnalystsState | None:
+    async def process(self, state: PostGenerateAnalystsRequest) -> GenerateAnalystsState | None:
         try:
             generate_analysts_response = await self.graph.ainvoke({
                 "topic": state.topic,

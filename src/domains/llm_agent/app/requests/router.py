@@ -3,35 +3,59 @@ import traceback
 
 from fastapi import APIRouter, Response, status
 
-from src.domains.llm_agent.app.requests.schemas import PostChatRequest, PostChatResponse
-from src.infrastructure.graph.graph import GenerateAnalystsGraph
+from src.domains.llm_agent.app.requests.schemas import PostGenerateAnalystsRequest, PostInterviewingRequest, PostGenerateAnalystsResponse, PostInterviewingResponse
+from src.infrastructure.graphs.generate_analysts.graph import GenerateAnalystsGraph
+from src.infrastructure.graphs.interviewing.graph import InterviewingGraph
 from src.schemas.common import ResponseBase
 
 router = APIRouter(
     prefix="/llm_agent",
-    tags=["chat_with_persona"]
+    tags=["report_generate"]
 )
 
 
 @router.post("/generate_analysts",
-             response_model=PostChatResponse,
+             response_model=PostGenerateAnalystsResponse,
              status_code=status.HTTP_200_OK)
-async def chat_interaction(response: Response,
-                           generate_analysts_data: PostChatRequest):
+async def generate_analysts(response: Response,
+                           generate_analysts_data: PostGenerateAnalystsRequest):
     logging.debug(f"Request generate analysts: {generate_analysts_data}")
     graph = GenerateAnalystsGraph()
     try:
-        chat_response = await graph.process(generate_analysts_data)
+        generate_analysts_response = await graph.process(generate_analysts_data)
     except Exception as e:
         logging.error(e)
         logging.error(traceback.format_exc())
-        chat_response = None
+        generate_analysts_response = None
 
-    if chat_response is None:
+    if generate_analysts_response is None:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return ResponseBase(
             details='Ошибка'
         )
-    return PostChatResponse(
-        msg=chat_response if chat_response else None
+    return PostGenerateAnalystsResponse(
+        msg=generate_analysts_response if generate_analysts_response else None
+    )
+
+@router.post("/interviewing",
+             response_model=PostInterviewingResponse,
+             status_code=status.HTTP_200_OK)
+async def interviewing(response: Response,
+                           interviewing_data: PostInterviewingRequest):
+    logging.debug(f"Request generate analysts: {interviewing_data}")
+    graph = InterviewingGraph()
+    try:
+        interviewing_response = await graph.process(interviewing_data)
+    except Exception as e:
+        logging.error(e)
+        logging.error(traceback.format_exc())
+        interviewing_response = None
+
+    if interviewing_response is None:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return ResponseBase(
+            details='Ошибка'
+        )
+    return PostInterviewingResponse(
+        msg=interviewing_response if interviewing_response else None
     )

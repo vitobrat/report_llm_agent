@@ -1,7 +1,6 @@
-from src.infrastructure.graph.schemas.generate_analysts import GenerateAnalystsState, Perspectives
 from src.depends import get_llm_graph, get_prompt_builder
-from src.infrastructure.graph.schemas.common import MetadataClass
-from src.configs.logger import LOGGER
+from src.infrastructure.graphs.generate_analysts.schema import GenerateAnalystsState, Perspectives
+from src.infrastructure.graphs.schema import MetadataClass
 
 
 async def create_analysts(state: GenerateAnalystsState) -> dict:
@@ -17,9 +16,7 @@ async def create_analysts(state: GenerateAnalystsState) -> dict:
         topic=topic,
         num_analysts=num_analysts
     )
-    LOGGER.debug(f"Generate analysts LLM request: {query}")
     analysts = await structured_llm.ainvoke(query)
-    LOGGER.debug(f"Generate analysts LLM response: {analysts}")
 
     #Get metadata information
     metadata = MetadataClass(

@@ -1,10 +1,5 @@
-from pathlib import Path
-import yaml
-from typing import Dict
-
 from langchain_core.messages import SystemMessage, HumanMessage, AnyMessage
 
-from src.configs.logger import LOGGER
 from src.configs.constants import PROJECT_ROOT
 
 from pathlib import Path
@@ -63,4 +58,63 @@ class ChatPromptBuilder:
                 num_analysts=num_analysts
             )),
             HumanMessage(content=generate_analysts_prompt),
+        ]
+
+    def build_generate_question_prompt(self, goals: str) -> list[AnyMessage]:
+        system_generate_question_prompt = self.pm.get_template(
+            "interviewing",
+            "system_question_instructions",
+        )
+
+        return [
+            SystemMessage(content=system_generate_question_prompt.format(
+                goals=goals,
+            ))
+        ]
+
+    def build_search_instructions_prompt(self) -> list[AnyMessage]:
+        system_search_instructions_prompt = self.pm.get_template(
+            "interviewing",
+            "system_search_instructions",
+        )
+
+        return [
+            SystemMessage(content=system_search_instructions_prompt)
+        ]
+
+    def build_answer_instructions_prompt(self, goals: str, context: list) -> list[AnyMessage]:
+        system_answer_instructions_prompt = self.pm.get_template(
+            "interviewing",
+            "system_answer_instructions",
+        )
+
+        return [
+            SystemMessage(content=system_answer_instructions_prompt.format(
+                goals=goals,
+                context=context,
+            ))
+        ]
+
+    def build_section_writer_instructions_prompt(self,
+                                                 focus: str,
+                                                 interview: str,
+                                                 context: list) -> list[AnyMessage]:
+        system_section_writer_instructions_prompt = self.pm.get_template(
+            "interviewing",
+            "system_section_writer_instructions",
+        )
+
+        section_writer_instructions_prompt = self.pm.get_template(
+            "interviewing",
+            "section_writer_instructions",
+        )
+
+        return [
+            SystemMessage(content=system_section_writer_instructions_prompt.format(
+                focus=focus,
+            ))
+            +
+            HumanMessage(content=section_writer_instructions_prompt.format(
+                context=context,
+            ))
         ]

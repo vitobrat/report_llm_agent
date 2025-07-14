@@ -2,7 +2,8 @@ from typing import List
 from typing_extensions import TypedDict
 from pydantic import BaseModel, Field
 
-from src.infrastructure.graph.schemas.common import MetadataClass
+from src.infrastructure.graphs.schema import MetadataClass
+
 
 class Analyst(BaseModel):
     affiliation: str = Field(
@@ -30,4 +31,4 @@ class GenerateAnalystsState(TypedDict):
     topic: str # Research topic
     num_analysts: int # Number of analysts
     analysts: List[Analyst] # Analyst asking questions
-    metadata: MetadataClass # Metadata information
+    metadata: MetadataClass  # Metadata information
