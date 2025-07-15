@@ -15,6 +15,7 @@ class PostGenerateAnalystsResponse(ResponseBase):
     msg: Union[None, GenerateAnalystsState]
 
 class PostInterviewingRequest(BaseModel):
+    topic: str # topic of interviewing
     analyst: Analyst # Analyst asking questions
     max_num_turns: int = 2 # Number turns of conversation
 

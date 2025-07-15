@@ -2,7 +2,6 @@ from typing import Optional
 import logging
 
 from langgraph.graph import StateGraph, START, END
-from langgraph.checkpoint.memory import MemorySaver
 
 from src.domains.llm_agent.app.requests.schemas import PostInterviewingRequest
 from src.infrastructure.graphs.interviewing.schema import InterviewState
@@ -49,11 +48,11 @@ class InterviewingGraph:
     async def process(self, state: PostInterviewingRequest) -> InterviewState | None:
         try:
             generate_analysts_response = await self.graph.ainvoke({
-
+                "analyst": state.analyst,
+                "max_num_turns": state.max_num_turns,
+                "topic": state.topic,
             })
-            if generate_analysts_response.get("analysts") is None:
-                raise GraphError("Generated analysts list is None")
             return generate_analysts_response
         except Exception as e:
-            logging.error(f"Error during GenerateAnalystsGraph processing: {e}")
+            logging.error(f"Error during InterviewingGraph processing: {e}")
             return None

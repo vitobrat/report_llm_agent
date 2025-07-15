@@ -60,7 +60,7 @@ class ChatPromptBuilder:
             HumanMessage(content=generate_analysts_prompt),
         ]
 
-    def build_generate_question_prompt(self, goals: str) -> list[AnyMessage]:
+    def build_generate_question_prompt(self, person: str, topic: str) -> list[AnyMessage]:
         system_generate_question_prompt = self.pm.get_template(
             "interviewing",
             "system_question_instructions",
@@ -68,7 +68,8 @@ class ChatPromptBuilder:
 
         return [
             SystemMessage(content=system_generate_question_prompt.format(
-                goals=goals,
+                person=person,
+                topic=topic,
             ))
         ]
 
@@ -112,8 +113,7 @@ class ChatPromptBuilder:
         return [
             SystemMessage(content=system_section_writer_instructions_prompt.format(
                 focus=focus,
-            ))
-            +
+            )),
             HumanMessage(content=section_writer_instructions_prompt.format(
                 context=context,
             ))

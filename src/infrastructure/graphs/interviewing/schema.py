@@ -8,6 +8,7 @@ from src.infrastructure.graphs.schema import MetadataClass
 
 
 class InterviewState(MessagesState):
+    topic: str # topic of interviewing
     max_num_turns: int # Number turns of conversation
     context: Annotated[list, operator.add] # Source docs
     analyst: Analyst # Analyst asking questions

@@ -5,13 +5,13 @@ workers_number: 1
 llm:
   base_llm_url: "http://localhost:11434/v1"
   model_name: "llama3.1:8b"
-  temperature: 0.8
-  top_k: 40
-  top_p: 0.9
+  temperature: 0.5
+  top_k: 20
+  top_p: 0.8
   repeat_penalty: 1.1
   mirostat: 2
   mirostat_eta: 0.1
   mirostat_tau: 5.0
-  num_predict: 128
-  repeat_last_n: 64
+  num_predict: 1024
+  repeat_last_n: 128
   num_ctx: 10000

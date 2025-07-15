@@ -18,14 +18,21 @@ def generate_question(state: InterviewState):
     # Get state
     analyst = state.get("analyst")
     messages = state.get("messages")
+    topic = state.get("topic")
 
     # Generate question
-    system_message = get_prompt_builder().build_generate_question_prompt(goals=analyst.persona)
+    system_message = get_prompt_builder().build_generate_question_prompt(
+        person=analyst.persona,
+        topic=topic
+    )
+    LOGGER.debug(f"generate_question request: {system_message+messages}")
     question = get_llm_graph().invoke(system_message+messages)
+    LOGGER.debug(f"generate_question response: {question}")
+    LOGGER.debug("-------------------")
 
     metadata = MetadataClass(
-        output_tokens=question.get("raw").usage_metadata.get("output_tokens"),
-        input_tokens=question.get("raw").usage_metadata.get("input_tokens")
+        output_tokens=question.usage_metadata.get("output_tokens"),
+        input_tokens=question.usage_metadata.get("input_tokens")
     )
 
     # Write messages to state
@@ -39,13 +46,14 @@ def search_wikipedia(state: InterviewState):
     # Search query
     structured_llm = get_llm_graph().with_structured_output(SearchQuery, include_raw=True)
     search_instructions = get_prompt_builder().build_search_instructions_prompt()
+    LOGGER.debug(f"search_wikipedia request: {search_instructions + state.get("messages", [])}")
     search_query = structured_llm.invoke(search_instructions + state.get("messages", []))
+    LOGGER.debug(f"search_wikipedia response: {search_query}")
+    LOGGER.debug("-------------------")
 
     # Extract query text
     parsed = search_query.get("parsed")
     query_text = parsed.search_query if parsed else None
-
-    LOGGER.debug(f"Wikipedia search query: {query_text}")
 
     # Execute search only if query exists
     if query_text:
@@ -66,6 +74,8 @@ def search_wikipedia(state: InterviewState):
             for doc in search_docs
         ]
     )
+    LOGGER.debug(f"formatted_search_docs: {formatted_search_docs}")
+    LOGGER.debug("-------------------")
 
     metadata = MetadataClass(
         output_tokens=search_query.get("raw").usage_metadata.get("output_tokens"),
@@ -87,14 +97,17 @@ def generate_answer(state: InterviewState):
 
     # Answer question
     system_message = get_prompt_builder().build_answer_instructions_prompt(goals=analyst.persona, context=context)
+    LOGGER.debug(f"generate_answer request: {system_message+messages}")
     answer = get_llm_graph().invoke(system_message+messages)
+    LOGGER.debug(f"generate_answer response: {answer}")
+    LOGGER.debug("-------------------")
 
     # Name the message as coming from the expert
     answer.name = "expert"
 
     metadata = MetadataClass(
-        output_tokens=answer.get("raw").usage_metadata.get("output_tokens"),
-        input_tokens=answer.get("raw").usage_metadata.get("input_tokens")
+        output_tokens=answer.usage_metadata.get("output_tokens"),
+        input_tokens=answer.usage_metadata.get("input_tokens")
     )
 
     # Append it to state
@@ -154,7 +167,10 @@ def write_section(state: InterviewState):
         context=context,
         interview=interview, # TODO разобраться почему не используется
     )
+    LOGGER.debug(f"write_section request: {prompt}")
     section = get_llm_graph().invoke(prompt)
+    LOGGER.debug(f"write_section response: {section}")
+    LOGGER.debug("-------------------")
 
     metadata = MetadataClass(
         output_tokens=section.usage_metadata.get("output_tokens"),

@@ -85,7 +85,7 @@ def get_llm_graph(temperature=get_settings().llm.temperature,
     # llm.mirostat = mirostat
     # llm.mirostat_eta = mirostat_eta
     # llm.mirostat_tau = mirostat_tau
-    # llm.num_predict = num_predict
+    llm.max_tokens = num_predict
     # llm.repeat_last_n = repeat_last_n
     # llm.num_ctx = num_ctx
     return llm
