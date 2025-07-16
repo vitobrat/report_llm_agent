@@ -25,7 +25,7 @@ class PromptManager:
             if not config_file.exists():
                 continue
 
-            with open(config_file, "r") as f:
+            with open(config_file, "r", encoding="utf-8") as f:
                 category_name = category_dir.name
                 self.prompts[category_name] = yaml.safe_load(f) or {}
 
@@ -58,6 +58,26 @@ class ChatPromptBuilder:
                 num_analysts=num_analysts
             )),
             HumanMessage(content=generate_analysts_prompt),
+        ]
+
+    def build_generate_chapters_prompt(self,
+                                       topic: str,
+                                       num_chapters) -> list[AnyMessage]:
+        system_generate_chapters_prompt = self.pm.get_template(
+            "generate_chapters",
+            "system_generate_chapters_prompt"
+        )
+        generate_chapters_prompt = self.pm.get_template(
+            "generate_chapters",
+            "generate_chapters_prompt"
+        )
+
+        return [
+            SystemMessage(content=system_generate_chapters_prompt),
+            HumanMessage(content=generate_chapters_prompt.format(
+                topic=topic,
+                num_chapters=num_chapters
+            )),
         ]
 
     def build_generate_question_prompt(self, person: str, topic: str) -> list[AnyMessage]:

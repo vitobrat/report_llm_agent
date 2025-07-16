@@ -4,8 +4,10 @@ import traceback
 from fastapi import APIRouter, Response, status
 
 from src.domains.llm_agent.app.requests.schemas import PostGenerateAnalystsRequest, PostInterviewingRequest, \
-    PostGenerateAnalystsResponse, PostInterviewingResponse, PostResearchResponse, PostResearchRequest
+    PostGenerateAnalystsResponse, PostInterviewingResponse, PostResearchResponse, PostResearchRequest, \
+    PostGenerateChaptersResponse, PostGenerateChaptersRequest
 from src.infrastructure.graphs.generate_analysts.graph import GenerateAnalystsGraph
+from src.infrastructure.graphs.generate_chapters.graph import GenerateChaptersGraph
 from src.infrastructure.graphs.interviewing.graph import InterviewingGraph
 from src.infrastructure.graphs.research.graph import ResearchGraph
 from src.schemas.common import ResponseBase
@@ -37,6 +39,29 @@ async def generate_analysts(response: Response,
         )
     return PostGenerateAnalystsResponse(
         msg=generate_analysts_response if generate_analysts_response else None
+    )
+
+@router.post("/generate_chapters",
+             response_model=PostGenerateChaptersResponse,
+             status_code=status.HTTP_200_OK)
+async def generate_analysts(response: Response,
+                           generate_chapters_data: PostGenerateChaptersRequest):
+    logging.debug(f"Request generate chapters: {generate_chapters_data}")
+    graph = GenerateChaptersGraph()
+    try:
+        generate_chapters_response = await graph.process(generate_chapters_data)
+    except Exception as e:
+        logging.error(e)
+        logging.error(traceback.format_exc())
+        generate_chapters_response = None
+
+    if generate_chapters_response is None:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return ResponseBase(
+            details='Ошибка'
+        )
+    return PostGenerateChaptersResponse(
+        msg=generate_chapters_response if generate_chapters_response else None
     )
 
 @router.post("/interviewing",
