@@ -118,3 +118,47 @@ class ChatPromptBuilder:
                 context=context,
             ))
         ]
+
+    def build_report_writer_instructions_prompt(self, topic: str, context: str) -> list[AnyMessage]:
+        system_report_writer_instructions_prompt = self.pm.get_template(
+            "research",
+            "system_report_writer_instructions",
+        )
+        report_writer_instructions_prompt = self.pm.get_template(
+            "research",
+            "report_writer_instructions",
+        )
+
+        return [
+            SystemMessage(content=system_report_writer_instructions_prompt.format(
+                topic=topic,
+                context=context,
+            )),
+            HumanMessage(content=report_writer_instructions_prompt),
+        ]
+
+    def build_intro_instructions_prompt(self, topic: str, formatted_str_sections: str) -> list[AnyMessage]:
+        system_intro_instructions_prompt = self.pm.get_template(
+            "research",
+            "system_intro_instructions",
+        )
+
+        return [
+            SystemMessage(content=system_intro_instructions_prompt.format(
+                topic=topic,
+                formatted_str_sections=formatted_str_sections,
+            ))
+        ]
+
+    def build_conclusion_instructions_prompt(self, topic: str, formatted_str_sections: str) -> list[AnyMessage]:
+        system_conclusion_instructions_prompt = self.pm.get_template(
+            "research",
+            "system_conclusion_instructions",
+        )
+
+        return [
+            SystemMessage(content=system_conclusion_instructions_prompt.format(
+                topic=topic,
+                formatted_str_sections=formatted_str_sections,
+            ))
+        ]

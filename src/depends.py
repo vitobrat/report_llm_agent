@@ -2,6 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 
 from src.configs.config import ProjectConfig
 from src.configs.constants import PROJECT_ROOT
@@ -73,19 +74,18 @@ def get_llm_graph(temperature=get_settings().llm.temperature,
         object: Source llm with configured params
     """
     settings = get_settings()
-    llm = ChatOpenAI(
+    llm = ChatOllama(
         base_url=settings.llm.base_llm_url,
         model=settings.llm.model_name,
-        api_key="ollama"
     )
     llm.temperature = temperature
-    # llm.top_k = top_k
-    # llm.top_p = top_p
-    # llm.repeat_penalty = repeat_penalty
-    # llm.mirostat = mirostat
-    # llm.mirostat_eta = mirostat_eta
-    # llm.mirostat_tau = mirostat_tau
-    llm.max_tokens = num_predict
-    # llm.repeat_last_n = repeat_last_n
-    # llm.num_ctx = num_ctx
+    llm.top_k = top_k
+    llm.top_p = top_p
+    llm.repeat_penalty = repeat_penalty
+    llm.mirostat = mirostat
+    llm.mirostat_eta = mirostat_eta
+    llm.mirostat_tau = mirostat_tau
+    llm.repeat_last_n = repeat_last_n
+    llm.num_ctx = num_ctx
+    llm.num_predict = num_predict
     return llm

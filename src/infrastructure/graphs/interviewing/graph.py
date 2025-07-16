@@ -47,12 +47,12 @@ class InterviewingGraph:
 
     async def process(self, state: PostInterviewingRequest) -> InterviewState | None:
         try:
-            generate_analysts_response = await self.graph.ainvoke({
+            interviewing_response = await self.graph.ainvoke({
                 "analyst": state.analyst,
                 "max_num_turns": state.max_num_turns,
                 "topic": state.topic,
             })
-            return generate_analysts_response
+            return interviewing_response
         except Exception as e:
             logging.error(f"Error during InterviewingGraph processing: {e}")
             return None
