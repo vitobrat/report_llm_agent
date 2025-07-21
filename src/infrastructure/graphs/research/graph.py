@@ -7,10 +7,11 @@ from src.configs.logger import LOGGER
 from src.domains.llm_agent.app.requests.schemas import PostResearchRequest
 from src.infrastructure.graphs.generate_analysts.utils import create_analysts
 from src.infrastructure.graphs.interviewing.graph import InterviewingGraph
-from src.infrastructure.graphs.interviewing.schema import InterviewState
+from src.infrastructure.graphs.generate_analysts.graph import GenerateAnalystsGraph
 from src.infrastructure.graphs.research.schema import ResearchState
 from src.infrastructure.graphs.research.utils import write_report, write_introduction, write_conclusion, \
-    finalize_report, initiate_all_interviews
+    finalize_report, initiate_all_interviews, write_final_report
+from src.infrastructure.graphs.utils import get_langfuse_handler
 
 
 class GraphError(Exception):
@@ -29,10 +30,11 @@ class ResearchGraph:
     @staticmethod
     def _build_graph() -> StateGraph:
         """Создаёт и компилирует граф"""
-        interview_builder = InterviewingGraph()
+        interview_graph = InterviewingGraph()
+        generate_analysts_graph = GenerateAnalystsGraph()
         builder = StateGraph(ResearchState)
-        builder.add_node("create_analysts", create_analysts)
-        builder.add_node("conduct_interview", interview_builder.graph)
+        builder.add_node("create_analysts", generate_analysts_graph.graph)
+        builder.add_node("conduct_interview", interview_graph.graph)
         builder.add_node("write_report", write_report)
         builder.add_node("write_introduction", write_introduction)
         builder.add_node("write_conclusion", write_conclusion)
@@ -54,8 +56,11 @@ class ResearchGraph:
                 "topic": state.topic,
                 "max_num_turns": state.max_num_turns,
                 "num_analysts": state.num_analysts,
-            })
-            LOGGER.debug(f"research_response: {research_response}")
+            }, config={"callbacks": [get_langfuse_handler()]})
+            if research_response.get("final_report") is None:
+                raise GraphError("Final report is None")
+
+            write_final_report(data=research_response.get("final_report", ""))
             return research_response
         except Exception as e:
             logging.error(f"Error during ResearchGraph processing: {e}")

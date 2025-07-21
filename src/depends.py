@@ -1,8 +1,12 @@
+import os
 from functools import lru_cache
 from pathlib import Path
+from dotenv import load_dotenv
 
 from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
+from langfuse import Langfuse
+from langfuse.langchain import CallbackHandler
 
 from src.configs.config import ProjectConfig
 from src.configs.constants import PROJECT_ROOT
@@ -10,6 +14,17 @@ from src.infrastructure.prompts.prompt_manager import (
     ChatPromptBuilder,
     PromptManager
 )
+
+load_dotenv(dotenv_path=Path("configs", ".env"))
+langfuse = Langfuse(
+    public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
+    secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+    host=os.getenv("LANGFUSE_HOST"),
+)
+
+@lru_cache(maxsize=1)
+def get_langfuse_handler() -> CallbackHandler:
+    return CallbackHandler()
 
 @lru_cache(maxsize=1)
 def get_settings() -> ProjectConfig:
@@ -74,18 +89,24 @@ def get_llm_graph(temperature=get_settings().llm.temperature,
         object: Source llm with configured params
     """
     settings = get_settings()
-    llm = ChatOllama(
+    llm = ChatOpenAI(
         base_url=settings.llm.base_llm_url,
         model=settings.llm.model_name,
+        api_key="ollama"
     )
+    # llm = ChatOpenAI(
+    #     base_url="https://api.ai-mediator.ru/v1",
+    #     model="gpt-4.1-mini",
+    #     api_key=os.getenv("API_KEY"),
+    # )
     llm.temperature = temperature
-    llm.top_k = top_k
-    llm.top_p = top_p
-    llm.repeat_penalty = repeat_penalty
-    llm.mirostat = mirostat
-    llm.mirostat_eta = mirostat_eta
-    llm.mirostat_tau = mirostat_tau
-    llm.repeat_last_n = repeat_last_n
-    llm.num_ctx = num_ctx
-    llm.num_predict = num_predict
+    # llm.top_k = top_k
+    # llm.top_p = top_p
+    # llm.repeat_penalty = repeat_penalty
+    # llm.mirostat = mirostat
+    # llm.mirostat_eta = mirostat_eta
+    # llm.mirostat_tau = mirostat_tau
+    # llm.repeat_last_n = repeat_last_n
+    # llm.num_ctx = num_ctx
+    # llm.num_predict = num_predict
     return llm

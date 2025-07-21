@@ -5,30 +5,24 @@ from src.configs.logger import LOGGER
 from src.depends import get_prompt_builder, get_llm_graph
 from src.infrastructure.graphs.interviewing.schema import InterviewState, SearchQuery
 from src.infrastructure.graphs.schema import MetadataClass
+from src.infrastructure.graphs.utils import llm_call
 
-def get_metadata(llm_response: BaseMessage) -> MetadataClass:
-    return MetadataClass(
-        output_tokens=llm_response.get("raw").usage_metadata.get("output_tokens"),
-        input_tokens=llm_response.get("raw").usage_metadata.get("input_tokens")
-    )
-
-def generate_question(state: InterviewState):
+async def generate_question(state: InterviewState):
     """ Node to generate a question """
 
     # Get state
     analyst = state.get("analyst")
     messages = state.get("messages")
     topic = state.get("topic")
+    LOGGER.debug(f"generate_question: {state}")
+    LOGGER.debug("-------------------")
 
     # Generate question
     system_message = get_prompt_builder().build_generate_question_prompt(
         person=analyst.persona,
         topic=topic
     )
-    LOGGER.debug(f"generate_question request: {system_message+messages}")
-    question = get_llm_graph().invoke(system_message+messages)
-    LOGGER.debug(f"generate_question response: {question}")
-    LOGGER.debug("-------------------")
+    question = await llm_call(llm=get_llm_graph(), prompt=system_message+messages)
 
     metadata = MetadataClass(
         output_tokens=question.usage_metadata.get("output_tokens"),
@@ -41,15 +35,14 @@ def generate_question(state: InterviewState):
         "metadata": metadata
     }
 
-def search_wikipedia(state: InterviewState):
+async def search_wikipedia(state: InterviewState):
     """ Retrieve docs from wikipedia """
+    LOGGER.debug(f"search_wikipedia: {state}")
+    LOGGER.debug("-------------------")
     # Search query
     structured_llm = get_llm_graph().with_structured_output(SearchQuery, include_raw=True)
     search_instructions = get_prompt_builder().build_search_instructions_prompt()
-    LOGGER.debug(f"search_wikipedia request: {search_instructions + state.get("messages", [])}")
-    search_query = structured_llm.invoke(search_instructions + state.get("messages", []))
-    LOGGER.debug(f"search_wikipedia response: {search_query}")
-    LOGGER.debug("-------------------")
+    search_query = await llm_call(llm=structured_llm, prompt=search_instructions + state.get("messages", []))
 
     # Extract query text
     parsed = search_query.get("parsed")
@@ -87,20 +80,19 @@ def search_wikipedia(state: InterviewState):
         "metadata": metadata
     }
 
-def generate_answer(state: InterviewState):
+async def generate_answer(state: InterviewState):
     """ Node to answer a question """
 
     # Get state
     analyst = state.get("analyst")
     messages = state.get("messages")
     context = state.get("context")
+    LOGGER.debug(f"generate_answer: {state}")
+    LOGGER.debug("-------------------")
 
     # Answer question
     system_message = get_prompt_builder().build_answer_instructions_prompt(goals=analyst.persona, context=context)
-    LOGGER.debug(f"generate_answer request: {system_message+messages}")
-    answer = get_llm_graph().invoke(system_message+messages)
-    LOGGER.debug(f"generate_answer response: {answer}")
-    LOGGER.debug("-------------------")
+    answer = await llm_call(llm=get_llm_graph(), prompt=system_message+messages)
 
     # Name the message as coming from the expert
     answer.name = "expert"
@@ -153,13 +145,15 @@ def route_messages(state: InterviewState,
         return 'save_interview'
     return "ask_question"
 
-def write_section(state: InterviewState):
+async def write_section(state: InterviewState):
     """ Node to answer a question """
 
     # Get state
     interview = state.get("interview")
     context = state.get("context")
     analyst = state.get("analyst")
+    LOGGER.debug(f"write_section: {state}")
+    LOGGER.debug("-------------------")
 
     # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
     prompt = get_prompt_builder().build_section_writer_instructions_prompt(
@@ -167,10 +161,7 @@ def write_section(state: InterviewState):
         context=context,
         interview=interview, # TODO разобраться почему не используется
     )
-    LOGGER.debug(f"write_section request: {prompt}")
-    section = get_llm_graph().invoke(prompt)
-    LOGGER.debug(f"write_section response: {section}")
-    LOGGER.debug("-------------------")
+    section = await llm_call(llm=get_llm_graph(), prompt=prompt)
 
     metadata = MetadataClass(
         output_tokens=section.usage_metadata.get("output_tokens"),

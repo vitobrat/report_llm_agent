@@ -14,7 +14,7 @@ class GraphError(Exception):
     pass
 
 class GenerateChaptersGraph:
-    _instance: Optional["GenerateAnalystsGraph"] = None
+    _instance: Optional["GenerateChaptersGraph"] = None
 
     def __new__(cls):
         if cls._instance is None:

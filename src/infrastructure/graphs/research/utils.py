@@ -1,9 +1,24 @@
+import time
+import os
+from pathlib import Path
+
 from langgraph.types import Send
 
 from src.depends import get_prompt_builder, get_llm_graph
 from src.infrastructure.graphs.research.schema import ResearchState
 from src.infrastructure.graphs.schema import MetadataClass
+from src.infrastructure.graphs.utils import llm_call
+from src.configs.logger import LOGGER
 
+
+def write_final_report(data: str):
+    os.makedirs("data", exist_ok=True)
+
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    filename = Path("data", f"final_report_{timestamp}.md")
+
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(data)
 
 def initiate_all_interviews(state: ResearchState):
     """ This is the "map" step where we run each interview sub-graph using Send API """
@@ -12,10 +27,12 @@ def initiate_all_interviews(state: ResearchState):
     return [Send("conduct_interview", {"analyst": analyst, "max_num_turns": max_num_turns,
                                         "topic": topic}) for analyst in state.get("analysts")]
 
-def write_report(state: ResearchState):
+async def write_report(state: ResearchState):
     # Full set of sections
     sections = state.get("sections")
     topic = state.get("topic")
+    LOGGER.debug(f"write_report: {state}")
+    LOGGER.debug("-------------------")
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
@@ -25,7 +42,7 @@ def write_report(state: ResearchState):
         topic=topic,
         context=formatted_str_sections
     )
-    report = get_llm_graph().invoke(prompt)
+    report = await llm_call(llm=get_llm_graph(), prompt=prompt)
 
     metadata = MetadataClass(
         output_tokens=report.usage_metadata.get("output_tokens"),
@@ -36,10 +53,12 @@ def write_report(state: ResearchState):
         "content": report.content,
         "metadata": metadata,
     }
-def write_introduction(state: ResearchState):
+async def write_introduction(state: ResearchState):
     # Full set of sections
     sections = state.get("sections")
     topic = state.get("topic")
+    LOGGER.debug(f"write_introduction: {state}")
+    LOGGER.debug("-------------------")
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
@@ -50,7 +69,7 @@ def write_introduction(state: ResearchState):
         topic=topic,
         formatted_str_sections=formatted_str_sections
     )
-    intro = get_llm_graph().invoke(prompt)
+    intro = await llm_call(llm=get_llm_graph(), prompt=prompt)
 
     metadata = MetadataClass(
         output_tokens=intro.usage_metadata.get("output_tokens"),
@@ -62,10 +81,12 @@ def write_introduction(state: ResearchState):
         "metadata": metadata,
     }
 
-def write_conclusion(state: ResearchState):
+async def write_conclusion(state: ResearchState):
     # Full set of sections
     sections = state.get("sections")
     topic = state.get("topic")
+    LOGGER.debug(f"write_conclusion: {state}")
+    LOGGER.debug("-------------------")
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
@@ -76,7 +97,7 @@ def write_conclusion(state: ResearchState):
         topic=topic,
         formatted_str_sections=formatted_str_sections
     )
-    conclusion = get_llm_graph().invoke(prompt)
+    conclusion = await llm_call(llm=get_llm_graph(), prompt=prompt)
 
     metadata = MetadataClass(
         output_tokens=conclusion.usage_metadata.get("output_tokens"),

@@ -3,7 +3,7 @@ port: 8000
 log_level: "debug"
 workers_number: 1
 llm:
-  base_llm_url: "http://localhost:11434"
+  base_llm_url: "http://localhost:11434/v1"
   model_name: "llama3.1:8b"
   temperature: 0.9
   top_k: 20

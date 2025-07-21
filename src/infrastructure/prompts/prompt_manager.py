@@ -53,11 +53,11 @@ class ChatPromptBuilder:
         )
 
         return [
-            SystemMessage(content=system_generate_analysts_prompt.format(
+            SystemMessage(content=system_generate_analysts_prompt),
+            HumanMessage(content=generate_analysts_prompt.format(
                 topic=topic,
                 num_analysts=num_analysts
             )),
-            HumanMessage(content=generate_analysts_prompt),
         ]
 
     def build_generate_chapters_prompt(self,

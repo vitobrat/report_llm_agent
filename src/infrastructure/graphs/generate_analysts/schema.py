@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Annotated
 from typing_extensions import TypedDict
 from pydantic import BaseModel, Field
 
