@@ -3,6 +3,7 @@ from typing_extensions import TypedDict
 from pydantic import BaseModel, Field
 
 from src.infrastructure.graphs.schema import MetadataClass
+from src.infrastructure.graphs.generate_chapters.schema import Chapter
 
 
 class Analyst(BaseModel):
@@ -29,6 +30,6 @@ class Perspectives(BaseModel):
 
 class GenerateAnalystsState(TypedDict):
     topic: str # Research topic
-    num_analysts: int # Number of analysts
+    chapters: List[Chapter] # List of report's chapters
     analysts: List[Analyst] # Analyst asking questions
     metadata: MetadataClass  # Metadata information

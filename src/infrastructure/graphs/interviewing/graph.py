@@ -51,6 +51,7 @@ class InterviewingGraph:
                 "analyst": state.analyst,
                 "max_num_turns": state.max_num_turns,
                 "topic": state.topic,
+                "chapter": state.chapter,
             })
             return interviewing_response
         except Exception as e:

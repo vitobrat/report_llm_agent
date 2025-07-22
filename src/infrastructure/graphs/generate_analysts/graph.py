@@ -36,7 +36,7 @@ class GenerateAnalystsGraph:
         try:
             generate_analysts_response = await self.graph.ainvoke({
                 "topic": state.topic,
-                "num_analysts": state.num_analysts,
+                "chapters": state.chapters,
             })
             if generate_analysts_response.get("analysts") is None:
                 raise GraphError("Generated analysts list is None")

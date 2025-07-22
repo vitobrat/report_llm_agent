@@ -24,23 +24,29 @@ def initiate_all_interviews(state: ResearchState):
     """ This is the "map" step where we run each interview sub-graph using Send API """
     topic = state.get("topic")
     max_num_turns = state.get("max_num_turns")
-    return [Send("conduct_interview", {"analyst": analyst, "max_num_turns": max_num_turns,
-                                        "topic": topic}) for analyst in state.get("analysts")]
+    return [Send("conduct_interview", {"analyst": analyst,
+                                       "max_num_turns": max_num_turns,
+                                       "topic": topic,
+                                       "chapter": chapter}) for analyst, chapter in zip(state.get("analysts"), state.get("chapters"))]
 
 async def write_report(state: ResearchState):
     # Full set of sections
     sections = state.get("sections")
     topic = state.get("topic")
+    chapters = state.get("chapters")
     LOGGER.debug(f"write_report: {state}")
     LOGGER.debug("-------------------")
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
+    formatted_str_chapters = "\n\n".join(
+        [f"{chapter.chapter}" for chapter in chapters])
 
     # Summarize the sections into a final report
     prompt = get_prompt_builder().build_report_writer_instructions_prompt(
         topic=topic,
-        context=formatted_str_sections
+        chapters=formatted_str_chapters,
+        formatted_str_sections=formatted_str_sections
     )
     report = await llm_call(llm=get_llm_graph(), prompt=prompt)
 

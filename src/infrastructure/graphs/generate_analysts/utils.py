@@ -8,8 +8,10 @@ from src.configs.logger import LOGGER
 
 async def create_analysts(state: GenerateAnalystsState) -> dict:
     """ Create analysts """
-    topic=state.get("topic", "")
-    num_analysts=state.get("num_analysts", 1)
+    topic = state.get("topic", "")
+    chapters=state.get("chapters", [])
+    num_analysts = len(chapters)
+    formatted_str_chapters = "\n\n".join([f"{chapter.chapter}" for chapter in chapters])
     LOGGER.debug(f"create_analysts: {state}")
     LOGGER.debug("-------------------")
 
@@ -19,6 +21,7 @@ async def create_analysts(state: GenerateAnalystsState) -> dict:
     # Generate question
     query = get_prompt_builder().build_generate_analysts_prompt(
         topic=topic,
+        chapters=formatted_str_chapters,
         num_analysts=num_analysts
     )
     analysts = await llm_call(llm=structured_llm, prompt=query)

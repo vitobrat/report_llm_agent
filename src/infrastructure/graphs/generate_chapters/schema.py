@@ -17,7 +17,7 @@ class Chapter(BaseModel):
     )
     @property
     def chapter(self) -> str:
-        return f"Chapter title: {self.title}\nNumbering: {self.role}\nThe topics that will be considered in this chapter: {self.topics}"
+        return f"Chapter title: {self.title}\nNumbering: {self.numbering}\nThe topics that will be considered in this chapter: {self.topics}"
 
 class Chapters(BaseModel):
     chapters: List[Chapter] = Field(

@@ -7,6 +7,7 @@ from langgraph.graph import StateGraph, START, END
 from src.domains.llm_agent.app.requests.schemas import PostGenerateChaptersRequest
 from src.infrastructure.graphs.generate_chapters.schema import GenerateChaptersState
 from src.infrastructure.graphs.generate_chapters.utils import create_chapters
+from src.depends import get_langfuse_handler
 
 
 class GraphError(Exception):
@@ -38,7 +39,7 @@ class GenerateChaptersGraph:
             generate_chapters_response = await self.graph.ainvoke({
                 "topic": state.topic,
                 "num_chapters": state.num_chapters,
-            })
+            }, config={"callbacks": [get_langfuse_handler()]})
             if generate_chapters_response.get("chapters") is None:
                 raise GraphError("Generated chapters list is None")
             return generate_chapters_response

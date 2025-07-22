@@ -1,9 +1,9 @@
-from typing import Union
+from typing import Union, List
 
 from pydantic import BaseModel
 
 from src.infrastructure.graphs.generate_analysts.schema import GenerateAnalystsState, Analyst
-from src.infrastructure.graphs.generate_chapters.schema import GenerateChaptersState
+from src.infrastructure.graphs.generate_chapters.schema import GenerateChaptersState, Chapter
 from src.infrastructure.graphs.interviewing.schema import InterviewState
 from src.infrastructure.graphs.research.schema import ResearchState
 from src.schemas.common import ResponseBase
@@ -11,7 +11,7 @@ from src.schemas.common import ResponseBase
 
 class PostGenerateAnalystsRequest(BaseModel):
     topic: str
-    num_analysts: int = 3
+    chapters: List[Chapter]
 
 class PostGenerateAnalystsResponse(ResponseBase):
     msg: Union[None, GenerateAnalystsState]
@@ -25,6 +25,7 @@ class PostGenerateChaptersResponse(ResponseBase):
 
 class PostInterviewingRequest(BaseModel):
     topic: str # topic of interviewing
+    chapter: Chapter  # Report chapter
     analyst: Analyst # Analyst asking questions
     max_num_turns: int = 2 # Number turns of conversation
 
@@ -34,7 +35,7 @@ class PostInterviewingResponse(ResponseBase):
 
 class PostResearchRequest(BaseModel):
     topic: str  # topic of interviewing
-    num_analysts: int = 3
+    chapters: List[Chapter]
     max_num_turns: int = 2  # Number turns of conversation of each analyst
 
 

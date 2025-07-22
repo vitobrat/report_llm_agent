@@ -1,5 +1,6 @@
 from typing import Optional
 import logging
+import traceback
 
 from langgraph.graph import StateGraph, START, END
 
@@ -55,7 +56,7 @@ class ResearchGraph:
             research_response = await self.graph.ainvoke({
                 "topic": state.topic,
                 "max_num_turns": state.max_num_turns,
-                "num_analysts": state.num_analysts,
+                "chapters": state.chapters,
             }, config={"callbacks": [get_langfuse_handler()]})
             if research_response.get("final_report") is None:
                 raise GraphError("Final report is None")
@@ -63,5 +64,6 @@ class ResearchGraph:
             write_final_report(data=research_response.get("final_report", ""))
             return research_response
         except Exception as e:
+            logging.error(traceback.format_exc())
             logging.error(f"Error during ResearchGraph processing: {e}")
             return None

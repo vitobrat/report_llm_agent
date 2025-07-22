@@ -14,11 +14,13 @@ async def generate_question(state: InterviewState):
     analyst = state.get("analyst")
     messages = state.get("messages")
     topic = state.get("topic")
+    chapter = state.get("chapter", "")
     LOGGER.debug(f"generate_question: {state}")
     LOGGER.debug("-------------------")
 
     # Generate question
     system_message = get_prompt_builder().build_generate_question_prompt(
+        chapter=chapter.chapter,
         person=analyst.persona,
         topic=topic
     )
@@ -85,13 +87,21 @@ async def generate_answer(state: InterviewState):
 
     # Get state
     analyst = state.get("analyst")
+    topic = state.get("topic", "")
+    chapter = state.get("chapter")
+
     messages = state.get("messages")
     context = state.get("context")
     LOGGER.debug(f"generate_answer: {state}")
     LOGGER.debug("-------------------")
 
     # Answer question
-    system_message = get_prompt_builder().build_answer_instructions_prompt(goals=analyst.persona, context=context)
+    system_message = get_prompt_builder().build_answer_instructions_prompt(
+        person=analyst.persona,
+        topic=topic,
+        chapter=chapter.chapter,
+        context=context,
+    )
     answer = await llm_call(llm=get_llm_graph(), prompt=system_message+messages)
 
     # Name the message as coming from the expert
@@ -149,17 +159,21 @@ async def write_section(state: InterviewState):
     """ Node to answer a question """
 
     # Get state
+    topic = state.get("topic", "")
     interview = state.get("interview")
     context = state.get("context")
     analyst = state.get("analyst")
+    chapter = state.get("chapter")
     LOGGER.debug(f"write_section: {state}")
     LOGGER.debug("-------------------")
 
     # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
     prompt = get_prompt_builder().build_section_writer_instructions_prompt(
-        focus=analyst.description,
+        person=analyst.persona,
+        topic=topic,
+        chapter=chapter.chapter,
         context=context,
-        interview=interview, # TODO разобраться почему не используется
+        interview=interview,
     )
     section = await llm_call(llm=get_llm_graph(), prompt=prompt)
 

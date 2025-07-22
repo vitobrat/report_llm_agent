@@ -42,7 +42,8 @@ class ChatPromptBuilder:
 
     def build_generate_analysts_prompt(self,
                                        topic: str,
-                                       num_analysts) -> list[AnyMessage]:
+                                       chapters: str,
+                                       num_analysts: int) -> list[AnyMessage]:
         system_generate_analysts_prompt = self.pm.get_template(
             "generate_analysts",
             "system_generate_analysts_prompt"
@@ -53,9 +54,11 @@ class ChatPromptBuilder:
         )
 
         return [
-            SystemMessage(content=system_generate_analysts_prompt),
-            HumanMessage(content=generate_analysts_prompt.format(
+            SystemMessage(content=system_generate_analysts_prompt.format(
                 topic=topic,
+            )),
+            HumanMessage(content=generate_analysts_prompt.format(
+                chapters=chapters,
                 num_analysts=num_analysts
             )),
         ]
@@ -80,7 +83,7 @@ class ChatPromptBuilder:
             )),
         ]
 
-    def build_generate_question_prompt(self, person: str, topic: str) -> list[AnyMessage]:
+    def build_generate_question_prompt(self, person: str, topic: str, chapter: str) -> list[AnyMessage]:
         system_generate_question_prompt = self.pm.get_template(
             "interviewing",
             "system_question_instructions",
@@ -88,6 +91,7 @@ class ChatPromptBuilder:
 
         return [
             SystemMessage(content=system_generate_question_prompt.format(
+                chapter=chapter,
                 person=person,
                 topic=topic,
             ))
@@ -103,7 +107,10 @@ class ChatPromptBuilder:
             SystemMessage(content=system_search_instructions_prompt)
         ]
 
-    def build_answer_instructions_prompt(self, goals: str, context: list) -> list[AnyMessage]:
+    def build_answer_instructions_prompt(self, person: str,
+                                         topic: str,
+                                         chapter: str,
+                                         context: list) -> list[AnyMessage]:
         system_answer_instructions_prompt = self.pm.get_template(
             "interviewing",
             "system_answer_instructions",
@@ -111,13 +118,17 @@ class ChatPromptBuilder:
 
         return [
             SystemMessage(content=system_answer_instructions_prompt.format(
-                goals=goals,
+                person=person,
+                topic=topic,
+                chapter=chapter,
                 context=context,
             ))
         ]
 
     def build_section_writer_instructions_prompt(self,
-                                                 focus: str,
+                                                 person: str,
+                                                 topic: str,
+                                                 chapter: str,
                                                  interview: str,
                                                  context: list) -> list[AnyMessage]:
         system_section_writer_instructions_prompt = self.pm.get_template(
@@ -125,21 +136,19 @@ class ChatPromptBuilder:
             "system_section_writer_instructions",
         )
 
-        section_writer_instructions_prompt = self.pm.get_template(
-            "interviewing",
-            "section_writer_instructions",
-        )
-
         return [
             SystemMessage(content=system_section_writer_instructions_prompt.format(
-                focus=focus,
-            )),
-            HumanMessage(content=section_writer_instructions_prompt.format(
+                person=person,
+                topic=topic,
+                chapter=chapter,
+                interview=interview,
                 context=context,
-            ))
+            )),
         ]
 
-    def build_report_writer_instructions_prompt(self, topic: str, context: str) -> list[AnyMessage]:
+    def build_report_writer_instructions_prompt(self, topic: str,
+                                                chapters: str,
+                                                formatted_str_sections: str) -> list[AnyMessage]:
         system_report_writer_instructions_prompt = self.pm.get_template(
             "research",
             "system_report_writer_instructions",
@@ -152,7 +161,8 @@ class ChatPromptBuilder:
         return [
             SystemMessage(content=system_report_writer_instructions_prompt.format(
                 topic=topic,
-                context=context,
+                chapters=chapters,
+                formatted_str_sections=formatted_str_sections,
             )),
             HumanMessage(content=report_writer_instructions_prompt),
         ]

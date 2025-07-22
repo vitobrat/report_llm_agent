@@ -4,6 +4,7 @@ from typing_extensions import TypedDict
 
 from src.infrastructure.graphs.generate_analysts.schema import Analyst
 from src.infrastructure.graphs.schema import MetadataClass
+from src.infrastructure.graphs.generate_chapters.schema import Chapter
 
 def merge_metadata(first: MetadataClass, second: MetadataClass) -> MetadataClass:
     return MetadataClass(
@@ -13,7 +14,7 @@ def merge_metadata(first: MetadataClass, second: MetadataClass) -> MetadataClass
 
 class ResearchState(TypedDict):
     topic: Annotated[str, lambda first, second: second] # Research topic
-    num_analysts: int # Number of analysts
+    chapters: List[Chapter] # Chapters
     max_num_turns: Annotated[int, lambda first, second: second]  # Number turns of conversation
     analysts: List[Analyst] # Analyst asking questions
     sections: Annotated[list, operator.add] # Send() API key
