@@ -34,7 +34,7 @@ system_generate_analysts_prompt: |
     * "Lead Market Intelligence Specialist"
     * "Principal Industry Consultant"
   4. description (Analyst's Profile):
-  - Length: 25-50 words
+  - Length: 10-25 words
   - Must include:
     * Professional background
     * Expertise relevant to chapter topics
@@ -43,7 +43,7 @@ system_generate_analysts_prompt: |
     * Key concerns related to chapter topics
     * Unique perspective they bring
   - Format: Clear, professional narrative
-  - Example: "Technology analyst specializing in AI ethics. Focuses on regulatory frameworks and their impact on innovation. Known for balanced analysis of technological advancement versus societal implications."
+  - Example: "Technology analyst specializing in AI ethics. Focuses on regulatory frameworks and their impact on innovation"
   
   GENERATION RULES:
   1. Chapter-Specific Focus:

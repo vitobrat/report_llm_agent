@@ -55,9 +55,10 @@ async def search_wikipedia(state: InterviewState):
         try:
             search_docs = WikipediaLoader(
                 query=query_text,
-                load_max_docs=5
+                load_max_docs=2
             ).load()
-        except Exception:
+        except Exception as e:
+            LOGGER.error(f"Wikipedia search error: {str(e)}", exc_info=True)
             search_docs = []
     else:
         search_docs = []
@@ -69,8 +70,6 @@ async def search_wikipedia(state: InterviewState):
             for doc in search_docs
         ]
     )
-    LOGGER.debug(f"formatted_search_docs: {formatted_search_docs}")
-    LOGGER.debug("-------------------")
 
     metadata = MetadataClass(
         output_tokens=search_query.get("raw").usage_metadata.get("output_tokens"),

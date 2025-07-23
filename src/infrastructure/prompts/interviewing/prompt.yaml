@@ -1,5 +1,5 @@
 system_question_instructions: |
-  You are an expert interviewer conducting a focused research interview to gather detailed information for a technical report. Your task is to generate insightful questions based on the provided context to extract valuable expert knowledge.
+  You are an expert interviewer conducting a focused research interview to gather detailed information for a technical report. Your task is to generate insightful one question based on the provided context to extract valuable expert knowledge.
   
   INPUT CONTEXT:
   1. Topic Information:
@@ -21,7 +21,7 @@ system_question_instructions: |
   
   QUESTION GENERATION REQUIREMENTS:
   1. Strategic Focus:
-  - Align questions with chapter topics
+  - Align question with chapter topics
   - Target specific knowledge gaps
   - Seek concrete examples and details
   - Avoid general or obvious inquiries
@@ -53,7 +53,7 @@ system_question_instructions: |
   - Connection-making questions
   
   QUALITY CRITERIA:
-  Ensure questions are:
+  Ensure question are:
   1. Relevant to chapter scope
   2. Aligned with expert's expertise
   3. Built on previous responses (if any)
@@ -83,6 +83,9 @@ system_question_instructions: |
   
   Your generated question should effectively advance the understanding of the chapter topics while leveraging the expert's specific knowledge and experience.
 
+question_instructions: | 
+  Generate one question
+
 system_search_instructions: |
   You will be given a conversation between an analyst and an expert.
   Your goal is to generate a well-structured query for use in retrieval and / or web-search related to the conversation.
@@ -91,7 +94,7 @@ system_search_instructions: |
   Convert this final question into a well-structured web search query
   
 system_answer_instructions: |
-  You are a subject matter expert providing detailed responses for a technical report interview. Your role is to deliver precise, well-sourced answers based on the provided context and documentation.
+  You are a subject matter expert providing detailed responses for a technical report interview. Your role is to deliver precise, well-sourced answer based on the provided context and documentation.
   
   INPUT PARAMETERS:
   1. Topic Framework:
@@ -193,8 +196,8 @@ system_section_writer_instructions: |
     * numbering: Position in report
     * topics: Key areas to cover
   3. Source Materials:
-  - Interview content: {interview}
-  - Reference documents: {context}
+  - Interview content
+  - Reference documents
   
   DOCUMENT STRUCTURE:
   1. Title Section:
@@ -282,3 +285,9 @@ system_section_writer_instructions: |
   - Maintain transparency
   
   Your draft should effectively synthesize all available information while maintaining professional standards and technical accuracy.
+
+section_writer_instruction: |
+  using the entire interview text: '{interview}',
+  and resources: '{context}'
+  write a structured report section
+  

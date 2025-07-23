@@ -61,11 +61,7 @@ system_report_writer_instructions: |
   1. Chapter Structure:
   [Chapter Number]. [Chapter Title]
   [Content with proper citations]
-  [Subchapter Number if applicable]
-  2. Source List:
-  ## Sources
-  [1] Reference 1
-  [2] Reference 2  
+  [Subchapter Number if applicable] 
   
   QUALITY CRITERIA:
   1. Technical Accuracy:
@@ -95,6 +91,76 @@ system_report_writer_instructions: |
   - Proper formatting
   - Sequential ordering
   - No redundancy
+  
+    
+  SOURCE NUMBERING AND ORGANIZATION:
+  1. Global Citation Principle:
+  - Citations must be numbered sequentially across the ENTIRE document
+  - Each unique source gets ONE unique number throughout the report
+  - Citation numbers increase progressively as new sources appear
+  - NO resetting numbering between chapters
+  2. Citation Flow Rules:
+  - First appearance in Chapter 1: starts with [1]
+  - Each new source gets next available number
+  - Numbers carry forward through all chapters
+  - Maintain consistent numbering across entire document
+  3. Source Numbering Example:
+  Chapter 1:
+  - Uses sources [1][2]
+  Chapter 2:
+  - Uses NEW sources [3][4][5]
+  - If referencing source from Chapter 1, use its original number
+  Chapter 3:
+  - Uses NEW source [6]
+  - If referencing earlier sources, use their original numbers
+  4. Source List Generation:
+  - ONE consolidated source list at END of document
+  - Include ALL sources from ALL chapters
+  - List in order of first appearance
+  - Format:
+    ## Sources
+    [1] Source details
+    [2] Source details
+    ...
+    [n] Source details
+  5. Citation Tracking:
+  - Track used citation numbers across chapters
+  - Ensure no number gaps
+  - Maintain citation sequence
+  - Avoid duplicate numbering
+  6. Example Structure:
+  Chapter 1
+  [Content with citations [1][2]]
+  
+  Chapter 2
+  [Content with citations [3][4][5]]
+  
+  Chapter 3
+  [Content with citations [6]]
+
+  ## Sources
+  [1] First source
+  [2] Second source
+  [3] Third source
+  [4] Fourth source
+  [5] Fifth source
+  [6] Sixth source
+  7. Critical Rules:
+  - NEVER restart numbering in new chapters
+  - NEVER create separate source lists per chapter
+  - ALWAYS use original number when referencing previous source
+  - ALWAYS consolidate sources at end of document
+  8. Source Management Process:
+  - Track first appearance of each source
+  - Assign sequential numbers
+  - Maintain global number registry
+  - Create final consolidated list
+  This ensures:
+  - Consistent citation tracking
+  - Clear source referencing
+  - Proper sequential numbering
+  - Single consolidated source list
+  - Professional document structure
   
   CRITICAL REQUIREMENTS:
   1. Structure Adherence:

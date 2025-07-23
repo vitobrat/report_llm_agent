@@ -89,16 +89,16 @@ def get_llm_graph(temperature=get_settings().llm.temperature,
         object: Source llm with configured params
     """
     settings = get_settings()
-    llm = ChatOpenAI(
-        base_url=settings.llm.base_llm_url,
-        model=settings.llm.model_name,
-        api_key="ollama"
-    )
     # llm = ChatOpenAI(
-    #     base_url="https://api.ai-mediator.ru/v1",
-    #     model="gpt-4.1-mini",
-    #     api_key=os.getenv("API_KEY"),
+    #     base_url=settings.llm.base_llm_url,
+    #     model=settings.llm.model_name,
+    #     api_key="ollama"
     # )
+    llm = ChatOpenAI(
+        base_url="https://api.vsegpt.ru/v1",
+        model="openai/gpt-4o-mini",
+        api_key=os.getenv("API_KEY"),
+    )
     llm.temperature = temperature
     # llm.top_k = top_k
     # llm.top_p = top_p
@@ -108,5 +108,5 @@ def get_llm_graph(temperature=get_settings().llm.temperature,
     # llm.mirostat_tau = mirostat_tau
     # llm.repeat_last_n = repeat_last_n
     # llm.num_ctx = num_ctx
-    # llm.num_predict = num_predict
+    llm.max_tokens = num_predict
     return llm

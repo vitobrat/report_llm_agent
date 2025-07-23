@@ -89,12 +89,17 @@ class ChatPromptBuilder:
             "system_question_instructions",
         )
 
+        generate_question_prompt = self.pm.get_template(
+            "interviewing",
+            "question_instructions",
+        )
         return [
             SystemMessage(content=system_generate_question_prompt.format(
                 chapter=chapter,
                 person=person,
                 topic=topic,
-            ))
+            )),
+            HumanMessage(content=generate_question_prompt)
         ]
 
     def build_search_instructions_prompt(self) -> list[AnyMessage]:
@@ -135,15 +140,20 @@ class ChatPromptBuilder:
             "interviewing",
             "system_section_writer_instructions",
         )
-
+        section_writer_instructions_prompt = self.pm.get_template(
+            "interviewing",
+            "section_writer_instruction",
+        )
         return [
             SystemMessage(content=system_section_writer_instructions_prompt.format(
                 person=person,
                 topic=topic,
                 chapter=chapter,
+            )),
+            HumanMessage(content=section_writer_instructions_prompt.format(
                 interview=interview,
                 context=context,
-            )),
+            ))
         ]
 
     def build_report_writer_instructions_prompt(self, topic: str,

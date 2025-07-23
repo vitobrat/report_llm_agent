@@ -48,7 +48,10 @@ async def write_report(state: ResearchState):
         chapters=formatted_str_chapters,
         formatted_str_sections=formatted_str_sections
     )
-    report = await llm_call(llm=get_llm_graph(), prompt=prompt)
+    report = await llm_call(
+        llm=get_llm_graph(num_predict=4096),
+        prompt=prompt
+    )
 
     metadata = MetadataClass(
         output_tokens=report.usage_metadata.get("output_tokens"),
