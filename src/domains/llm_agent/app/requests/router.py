@@ -115,7 +115,14 @@ async def research(response: Response,
     )
 
 
-@router.post("/user_endpoint", response_class=StreamingResponse)
+@router.post("/user_endpoint", response_class=StreamingResponse,
+             responses={
+                 200: {
+                     "content": {"application/vnd.openxmlformats-officedocument.wordprocessingml.document": {}},
+                     "description": "Returns the generated DOCX file",
+                 }
+             }
+             )
 async def user_endpoint(
         response: Response,
         user_data: PostGenerateChaptersRequest):
@@ -147,14 +154,14 @@ async def user_endpoint(
 
         docx_buffer = convert_md_to_docx(md_content)
 
-        topic = re.sub(r'[^\w\s-]', '', user_response.get("topic", "report"))[:50]
-        filename = f"report_{topic}.docx".replace(' ', '_')
-
         # Возвращаем файл напрямую
         return StreamingResponse(
             content=docx_buffer,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={
+                "Content-Disposition": "attachment; filename=report.docx",
+                "Content-Length": str(docx_buffer.getbuffer().nbytes)
+            }
         )
 
     except Exception as e:
