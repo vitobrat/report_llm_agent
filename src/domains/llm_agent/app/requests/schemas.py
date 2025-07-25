@@ -38,6 +38,5 @@ class PostResearchRequest(BaseModel):
     chapters: List[Chapter]
     max_num_turns: int = 2  # Number turns of conversation of each analyst
 
-
 class PostResearchResponse(ResponseBase):
     msg: Union[None, dict]

@@ -89,16 +89,16 @@ def get_llm_graph(temperature=get_settings().llm.temperature,
         object: Source llm with configured params
     """
     settings = get_settings()
-    # llm = ChatOpenAI(
-    #     base_url=settings.llm.base_llm_url,
-    #     model=settings.llm.model_name,
-    #     api_key="ollama"
-    # )
     llm = ChatOpenAI(
-        base_url="https://api.vsegpt.ru/v1",
-        model="openai/gpt-4o-mini",
-        api_key=os.getenv("API_KEY"),
+        base_url=settings.llm.base_llm_url,
+        model=settings.llm.model_name,
+        api_key="ollama"
     )
+    # llm = ChatOpenAI(
+    #     base_url="https://api.vsegpt.ru/v1",
+    #     model="openai/gpt-4o-mini",
+    #     api_key=os.getenv("API_KEY"),
+    # )
     llm.temperature = temperature
     # llm.top_k = top_k
     # llm.top_p = top_p

@@ -1,7 +1,10 @@
 import logging
 import traceback
+from typing import Union
+import re
 
 from fastapi import APIRouter, Response, status
+from fastapi.responses import StreamingResponse
 
 from src.domains.llm_agent.app.requests.schemas import PostGenerateAnalystsRequest, PostInterviewingRequest, \
     PostGenerateAnalystsResponse, PostInterviewingResponse, PostResearchResponse, PostResearchRequest, \
@@ -11,6 +14,7 @@ from src.infrastructure.graphs.generate_chapters.graph import GenerateChaptersGr
 from src.infrastructure.graphs.interviewing.graph import InterviewingGraph
 from src.infrastructure.graphs.research.graph import ResearchGraph
 from src.schemas.common import ResponseBase
+from src.domains.llm_agent.app.utils import convert_md_to_docx
 
 router = APIRouter(
     prefix="/llm_agent",
@@ -109,3 +113,51 @@ async def research(response: Response,
     return PostResearchResponse(
         msg=dict(research_response) if research_response else None
     )
+
+
+@router.post("/user_endpoint", response_class=StreamingResponse)
+async def user_endpoint(
+        response: Response,
+        user_data: PostGenerateChaptersRequest):
+    logging.debug(f"Request generate analysts: {user_data}")
+    generate_chapters_graph = GenerateChaptersGraph()
+    research_graph = ResearchGraph()
+
+    try:
+        chapters_response = await generate_chapters_graph.process(user_data)
+        user_response = await research_graph.process(PostResearchRequest(
+            topic=chapters_response.get("topic", ""),
+            chapters=chapters_response.get("chapters", []),
+            max_num_turns=1,
+        ))
+    except Exception as e:
+        logging.error(e)
+        logging.error(traceback.format_exc())
+        user_response = None
+
+    if user_response is None:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+        return ResponseBase(details='Ошибка генерации отчета')
+
+    try:
+        # Конвертируем final_report в DOCX
+        md_content = user_response.get("final_report", "")
+        if not md_content:
+            raise ValueError("Generated content is empty")
+
+        docx_buffer = convert_md_to_docx(md_content)
+
+        topic = re.sub(r'[^\w\s-]', '', user_response.get("topic", "report"))[:50]
+        filename = f"report_{topic}.docx".replace(' ', '_')
+
+        # Возвращаем файл напрямую
+        return StreamingResponse(
+            content=docx_buffer,
+            media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+
+    except Exception as e:
+        logging.error(f"DOCX conversion error: {e}")
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return ResponseBase(details='Ошибка конвертации в DOCX')

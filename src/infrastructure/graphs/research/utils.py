@@ -132,7 +132,7 @@ def finalize_report(state: ResearchState):
     else:
         sources = None
 
-    final_report = state.get("introduction") + "\n\n---\n\n" + content + "\n\n---\n\n" + state.get("conclusion")
+    final_report = state.get("introduction") + "\n\n" + content + "\n\n" + state.get("conclusion")
     if sources is not None:
         final_report += "\n\n## Sources\n" + sources
     return {"final_report": final_report}

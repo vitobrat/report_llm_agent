@@ -29,6 +29,6 @@ async def create_chapters(state: GenerateChaptersState) -> dict:
 
     # Write the list of analysis to state
     return {
-        "chapters": chapters.get("parsed").chapters,
+        "chapters": chapters.get("parsed").chapters[:num_chapters],
         "metadata": metadata
     }
