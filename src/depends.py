@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 from langchain_openai import ChatOpenAI
 from langchain_ollama import ChatOllama
+from langchain_tavily import TavilySearch
 from langfuse import Langfuse
 from langfuse.langchain import CallbackHandler
 
@@ -25,6 +26,10 @@ langfuse = Langfuse(
 @lru_cache(maxsize=1)
 def get_langfuse_handler() -> CallbackHandler:
     return CallbackHandler()
+
+@lru_cache(maxsize=1)
+def get_tavily_search() -> TavilySearch:
+    return TavilySearch(max_results=2)
 
 @lru_cache(maxsize=1)
 def get_settings() -> ProjectConfig:

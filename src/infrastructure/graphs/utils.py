@@ -3,6 +3,8 @@ import asyncio
 import time
 from collections import deque
 
+from src.infrastructure.graphs.schema import MetadataClass
+
 
 # Глобальный rate limiter
 class RateLimiter:
@@ -40,3 +42,10 @@ async def llm_call(llm, prompt, **kwargs):
     """Вызов LLM с ограничением скорости"""
     await rate_limiter.wait()
     return await llm.ainvoke(prompt, **kwargs)
+
+
+def merge_metadata(first: MetadataClass, second: MetadataClass) -> MetadataClass:
+    return MetadataClass(
+        output_tokens=first.output_tokens + second.output_tokens,
+        input_tokens=first.input_tokens + second.input_tokens
+    )

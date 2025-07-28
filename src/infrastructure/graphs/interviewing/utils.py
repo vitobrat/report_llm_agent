@@ -2,7 +2,7 @@ from langchain_community.document_loaders import WikipediaLoader
 from langchain_core.messages import get_buffer_string, BaseMessage, AIMessage
 
 from src.configs.logger import LOGGER
-from src.depends import get_prompt_builder, get_llm_graph
+from src.depends import get_prompt_builder, get_llm_graph, get_tavily_search
 from src.infrastructure.graphs.interviewing.schema import InterviewState, SearchQuery
 from src.infrastructure.graphs.schema import MetadataClass
 from src.infrastructure.graphs.utils import llm_call
@@ -68,6 +68,48 @@ async def search_wikipedia(state: InterviewState):
         [
             f'<Document source="{doc.metadata.get("source", "")}" page="{doc.metadata.get("page", "")}"/>\n{doc.page_content}\n</Document>'
             for doc in search_docs
+        ]
+    )
+
+    metadata = MetadataClass(
+        output_tokens=search_query.get("raw").usage_metadata.get("output_tokens"),
+        input_tokens=search_query.get("raw").usage_metadata.get("input_tokens")
+    )
+
+    return {
+        "context": [formatted_search_docs],
+        "metadata": metadata
+    }
+
+async def search_web(state: InterviewState):
+    """ Retrieve docs from internet """
+    LOGGER.debug(f"search_web: {state}")
+    LOGGER.debug("-------------------")
+    # Search query
+    structured_llm = get_llm_graph().with_structured_output(SearchQuery, include_raw=True)
+    search_instructions = get_prompt_builder().build_search_instructions_prompt()
+    search_query = await llm_call(llm=structured_llm, prompt=search_instructions + state.get("messages", []))
+
+    # Extract query text
+    parsed = search_query.get("parsed")
+    query_text = parsed.search_query if parsed else None
+
+    # Execute search only if query exists
+    if query_text:
+        try:
+            search_docs = get_tavily_search().invoke(query_text)
+        except Exception as e:
+            LOGGER.error(f"Wikipedia search error: {str(e)}", exc_info=True)
+            search_docs = []
+    else:
+        search_docs = []
+
+    # Format documents
+    LOGGER.debug(f"search_web_documents: {search_docs}")
+    formatted_search_docs = "\n\n---\n\n".join(
+        [
+            f'<Document href="{doc.get("url")}"/>\n{doc.get("content")}\n</Document>'
+            for doc in search_docs.get("results", [])
         ]
     )
 

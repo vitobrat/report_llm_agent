@@ -5,12 +5,7 @@ from typing_extensions import TypedDict
 from src.infrastructure.graphs.generate_analysts.schema import Analyst
 from src.infrastructure.graphs.schema import MetadataClass
 from src.infrastructure.graphs.generate_chapters.schema import Chapter
-
-def merge_metadata(first: MetadataClass, second: MetadataClass) -> MetadataClass:
-    return MetadataClass(
-        output_tokens=first.output_tokens + second.output_tokens,
-        input_tokens=first.input_tokens + second.input_tokens
-    )
+from src.infrastructure.graphs.utils import merge_metadata
 
 class ResearchState(TypedDict):
     topic: Annotated[str, lambda first, second: second] # Research topic

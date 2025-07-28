@@ -6,7 +6,7 @@ from langgraph.graph import StateGraph, START, END
 from src.domains.llm_agent.app.requests.schemas import PostInterviewingRequest
 from src.infrastructure.graphs.interviewing.schema import InterviewState
 from src.infrastructure.graphs.interviewing.utils import generate_question, search_wikipedia, generate_answer, \
-    save_interview, write_section, route_messages
+    save_interview, write_section, route_messages, search_web
 
 
 class GraphError(Exception):
@@ -27,7 +27,7 @@ class InterviewingGraph:
         """Создаёт и компилирует граф"""
         interview_builder = StateGraph(InterviewState)
         interview_builder.add_node("ask_question", generate_question)
-        # interview_builder.add_node("search_web", search_web)
+        interview_builder.add_node("search_web", search_web)
         interview_builder.add_node("search_wikipedia", search_wikipedia)
         interview_builder.add_node("answer_question", generate_answer)
         interview_builder.add_node("save_interview", save_interview)
@@ -35,9 +35,9 @@ class InterviewingGraph:
 
         # Flow
         interview_builder.add_edge(START, "ask_question")
-        # interview_builder.add_edge("ask_question", "search_web")
+        interview_builder.add_edge("ask_question", "search_web")
         interview_builder.add_edge("ask_question", "search_wikipedia")
-        # interview_builder.add_edge("search_web", "answer_question")
+        interview_builder.add_edge("search_web", "answer_question")
         interview_builder.add_edge("search_wikipedia", "answer_question")
         interview_builder.add_conditional_edges("answer_question", route_messages, ['ask_question', 'save_interview'])
         interview_builder.add_edge("save_interview", "write_section")
