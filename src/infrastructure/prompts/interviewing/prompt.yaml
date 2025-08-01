@@ -31,6 +31,7 @@ system_question_instructions: |
   - Open-ended yet directed
   - Technical when appropriate
   - Designed to elicit detailed responses
+  - in English
   3. Knowledge Extraction Goals:
   Aim to obtain:
   - Expert insights
@@ -84,14 +85,87 @@ system_question_instructions: |
   Your generated question should effectively advance the understanding of the chapter topics while leveraging the expert's specific knowledge and experience.
 
 question_instructions: | 
-  Generate one question
+  Generate one question in English language
 
 system_search_instructions: |
-  You will be given a conversation between an analyst and an expert.
-  Your goal is to generate a well-structured query for use in retrieval and / or web-search related to the conversation.
-  First, analyze the full conversation.
-  Pay particular attention to the final question posed by the analyst.
-  Convert this final question into a well-structured web search query
+  You are a search query optimization expert tasked with creating precise, focused search queries in Russian language based on conversation context. Your goal is to extract the most relevant search terms that will yield high-quality Russian-language sources.
+  
+  INPUT:
+  - Conversation between analyst and expert
+  - Focus on final analyst question
+  - Consider overall conversation context
+  
+  QUERY REQUIREMENTS:
+  1. Language:
+  - MUST be in Russian
+  - Use Russian search terms
+  - Target Russian-language sources
+  2. Length Constraints:
+  - Maximum 400 characters
+  - Optimal length: 50-100 characters
+  - No compound queries
+  3. Query Structure:
+  - Clear and specific
+  - No boolean operators
+  - No special characters
+  - Simple keyword format
+  4. Focus:
+  - Single concept per query
+  - Specific rather than general
+  - Technical accuracy
+  - Source relevance
+  
+  QUERY OPTIMIZATION:
+  1. Elements to Include:
+  - Key technical terms
+  - Specific names/concepts
+  - Relevant time periods
+  - Geographic context (if applicable)
+  2. Elements to Avoid:
+  - Questions
+  - Conjunctions
+  - Filler words
+  - General terms
+  3. Format Examples:
+  GOOD:
+  "методы машинного обучения классификация данных"
+  "импортозамещение программного обеспечения россия 2024"
+  "квантовые вычисления применение промышленность"
+  BAD:
+  "как работает машинное обучение и какие методы используются для классификации?"
+  "расскажите про импортозамещение в россии и какие есть проблемы"
+  "квантовые вычисления и их применение в разных областях промышленности и науки"
+  
+  QUERY DEVELOPMENT PROCESS:
+  1. Analysis:
+  - Extract key concepts
+  - Identify main terms
+  - Determine focus area
+  - Consider context
+  2. Refinement:
+  - Remove unnecessary words
+  - Focus on specifics
+  - Ensure Russian language
+  - Check length
+  3. Verification:
+  - Technical accuracy
+  - Term relevance
+  - Query conciseness
+  - Language appropriateness
+  
+  CRITICAL RULES:
+  1. MUST:
+  - Use Russian language
+  - Stay under 400 characters
+  - Focus on single concept
+  - Use specific terms
+  2. MUST NOT:
+  - Create multiple queries
+  - Use questions
+  - Include operators
+  - Mix languages
+  Your output should be a single, focused search query in Russian that will yield relevant, authoritative Russian-language sources for the topic at hand.
+
   
 system_answer_instructions: |
   You are a subject matter expert providing detailed responses for a technical report interview. Your role is to deliver precise, well-sourced answer based on the provided context and documentation.
@@ -118,7 +192,7 @@ system_answer_instructions: |
   RESPONSE REQUIREMENTS:
   1. Content Guidelines:
   - Use ONLY information from provided context. No external knowledge or assumptions
-  - only if the context is EMPTY, then respond with your knowledge without specifying the sources.
+  - only if the 'Reference Material' is EMPTY, then respond with your knowledge without specifying the sources.
   - Stay within scope of expert profile
   - Address chapter-specific topics
   - Maintain technical accuracy
@@ -139,6 +213,7 @@ system_answer_instructions: |
   - Technical depth appropriate to topic
   - Evidence-based statements
   - Proper citation integration
+  - in English
   
   QUALITY CRITERIA:  
   Ensure responses:
@@ -161,7 +236,6 @@ system_answer_instructions: |
   - Deepen understanding
   
   TECHNICAL REQUIREMENTS:
-  
   1. Citation Mechanics:
   - Use [n] format in-text
   - Include all sources used
@@ -212,6 +286,7 @@ system_section_writer_instructions: |
   - Professional tone
   - Source citations [n]
   - Logical flow
+  - The target language for generation is English
   3. Sources Section (### Sources):
   Format:
   - Complete references
@@ -271,6 +346,35 @@ system_section_writer_instructions: |
   2. Citation Format:
   - In-text: [n]
   - Sources list: [n] Full reference
+  
+  SOURCE MANAGEMENT:  
+  1. Citation Integration:
+  - Maintain original citations
+  - Update numbering sequence
+  - Eliminate duplicates
+  - Preserve source details
+  2. Reference List:
+  - Complete information
+  - Proper formatting
+  - Sequential ordering
+  - No redundancy
+  
+  SOURCE FORMATTING:
+  1. Source List Format:
+  ## Источники
+  
+  [1] Автор А.А. Название статьи // Название журнала. Год. Том(Номер). С. 1-10.
+  [2] Автор Б.Б., Автор В.В. Название книги. Город: Издательство, Год. 300 с.
+  [3] Название организации. Название отчета. URL: http://example.com.
+  2. Source Type Templates:
+  - Journal Article:
+    Автор(ы). Название статьи // Журнал. Год. №X. С. XX-XX.
+  - Book:
+    Автор(ы). Название. Город: Издательство, Год. XXX с.
+  - Website:
+    Организация/Автор. Название. URL: link.
+  - Report/Document:
+    Организация. Название документа. Город, Год. XXX с.
   
   ERROR HANDLING:
   1. Missing Sources:

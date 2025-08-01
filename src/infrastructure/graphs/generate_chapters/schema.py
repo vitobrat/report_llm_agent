@@ -19,6 +19,17 @@ class Chapter(BaseModel):
     def chapter(self) -> str:
         return f"Chapter title: {self.title}\nNumbering: {self.numbering}\nThe topics that will be considered in this chapter: {self.topics}"
 
+class ChapterWithContent(Chapter):
+    raw_content: str = Field(
+        description="Collected and preprocessed information about the chapter"
+    )
+
+    @property
+    def description(self) -> str:
+        return (f"Chapter title: {self.title}\n"
+                f"Numbering: {self.numbering}\n"
+                f"Source material: {self.raw_content}")
+
 class Chapters(BaseModel):
     chapters: List[Chapter] = Field(
         description="Comprehensive list of chapters with their title, numbering and topics.",

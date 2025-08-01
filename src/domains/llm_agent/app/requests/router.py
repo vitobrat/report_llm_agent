@@ -1,7 +1,5 @@
 import logging
 import traceback
-from typing import Union
-import re
 
 from fastapi import APIRouter, Response, status
 from fastapi.responses import StreamingResponse
@@ -11,6 +9,7 @@ from src.domains.llm_agent.app.requests.schemas import PostGenerateAnalystsReque
     PostGenerateChaptersResponse, PostGenerateChaptersRequest
 from src.infrastructure.graphs.generate_analysts.graph import GenerateAnalystsGraph
 from src.infrastructure.graphs.generate_chapters.graph import GenerateChaptersGraph
+from src.infrastructure.graphs.generate_chapters.schema import ChapterWithContent
 from src.infrastructure.graphs.interviewing.graph import InterviewingGraph
 from src.infrastructure.graphs.research.graph import ResearchGraph
 from src.schemas.common import ResponseBase
@@ -132,9 +131,15 @@ async def user_endpoint(
 
     try:
         chapters_response = await generate_chapters_graph.process(user_data)
+        chapters = chapters_response.get("chapters", [])
         user_response = await research_graph.process(PostResearchRequest(
             topic=chapters_response.get("topic", ""),
-            chapters=chapters_response.get("chapters", []),
+            chapters=[ChapterWithContent(
+                title=chapter.title,
+                numbering=chapter.numbering,
+                topics=chapter.topics,
+                raw_content=""
+            ) for chapter in chapters],
             max_num_turns=1,
         ))
     except Exception as e:
@@ -147,14 +152,12 @@ async def user_endpoint(
         return ResponseBase(details='Ошибка генерации отчета')
 
     try:
-        # Конвертируем final_report в DOCX
         md_content = user_response.get("final_report", "")
         if not md_content:
             raise ValueError("Generated content is empty")
 
         docx_buffer = convert_md_to_docx(md_content)
 
-        # Возвращаем файл напрямую
         return StreamingResponse(
             content=docx_buffer,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",

@@ -1,5 +1,5 @@
 from langchain_community.document_loaders import WikipediaLoader
-from langchain_core.messages import get_buffer_string, BaseMessage, AIMessage
+from langchain_core.messages import get_buffer_string, AIMessage
 
 from src.configs.logger import LOGGER
 from src.depends import get_prompt_builder, get_llm_graph, get_tavily_search
@@ -9,7 +9,6 @@ from src.infrastructure.graphs.utils import llm_call
 
 async def generate_question(state: InterviewState):
     """ Node to generate a question """
-
     # Get state
     analyst = state.get("analyst")
     messages = state.get("messages")
@@ -99,16 +98,16 @@ async def search_web(state: InterviewState):
         try:
             search_docs = get_tavily_search().invoke(query_text)
         except Exception as e:
-            LOGGER.error(f"Wikipedia search error: {str(e)}", exc_info=True)
+            LOGGER.error(f"Web search error: {str(e)}", exc_info=True)
             search_docs = []
     else:
         search_docs = []
 
     # Format documents
-    LOGGER.debug(f"search_web_documents: {search_docs}")
     formatted_search_docs = "\n\n---\n\n".join(
         [
-            f'<Document href="{doc.get("url")}"/>\n{doc.get("content")}\n</Document>'
+            f'<Document href="{doc.get("url")}", Document title="{doc.get("title")}"/>\n'
+            f'{doc.get("content")}\n</Document>'
             for doc in search_docs.get("results", [])
         ]
     )
@@ -153,7 +152,6 @@ async def generate_answer(state: InterviewState):
         input_tokens=answer.usage_metadata.get("input_tokens")
     )
 
-    # Append it to state
     return {
         "messages": [answer],
         "metadata": metadata,
@@ -217,6 +215,7 @@ async def write_section(state: InterviewState):
         interview=interview,
     )
     section = await llm_call(llm=get_llm_graph(), prompt=prompt)
+    chapter.raw_content = section.content
 
     metadata = MetadataClass(
         output_tokens=section.usage_metadata.get("output_tokens"),
@@ -225,6 +224,6 @@ async def write_section(state: InterviewState):
 
     # Append it to state
     return {
-        "sections": [section.content],
+        "chapter": chapter,
         "metadata": metadata,
     }

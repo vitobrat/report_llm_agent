@@ -4,7 +4,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from langchain_openai import ChatOpenAI
-from langchain_ollama import ChatOllama
 from langchain_tavily import TavilySearch
 from langfuse import Langfuse
 from langfuse.langchain import CallbackHandler
@@ -29,7 +28,11 @@ def get_langfuse_handler() -> CallbackHandler:
 
 @lru_cache(maxsize=1)
 def get_tavily_search() -> TavilySearch:
-    return TavilySearch(max_results=2)
+    return TavilySearch(
+        max_results=3,
+        search_depth="advanced",
+        country="russia",
+    )
 
 @lru_cache(maxsize=1)
 def get_settings() -> ProjectConfig:
@@ -95,15 +98,10 @@ def get_llm_graph(temperature=get_settings().llm.temperature,
     """
     settings = get_settings()
     llm = ChatOpenAI(
-        base_url=settings.llm.base_llm_url,
-        model=settings.llm.model_name,
-        api_key="ollama"
+        base_url="https://api.vsegpt.ru/v1",
+        model="google/gemini-2.5-flash-lite-pre-06-17",
+        api_key=os.getenv("API_KEY"),
     )
-    # llm = ChatOpenAI(
-    #     base_url="https://api.vsegpt.ru/v1",
-    #     model="openai/gpt-4o-mini",
-    #     api_key=os.getenv("API_KEY"),
-    # )
     llm.temperature = temperature
     # llm.top_k = top_k
     # llm.top_p = top_p

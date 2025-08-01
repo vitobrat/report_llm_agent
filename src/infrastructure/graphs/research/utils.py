@@ -1,7 +1,3 @@
-import time
-import os
-from pathlib import Path
-
 from langgraph.types import Send
 
 from src.depends import get_prompt_builder, get_llm_graph
@@ -10,15 +6,6 @@ from src.infrastructure.graphs.schema import MetadataClass
 from src.infrastructure.graphs.utils import llm_call
 from src.configs.logger import LOGGER
 
-
-def write_final_report(data: str):
-    os.makedirs("data", exist_ok=True)
-
-    timestamp = time.strftime("%Y%m%d_%H%M%S")
-    filename = Path("data", f"final_report_{timestamp}.md")
-
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(data)
 
 def initiate_all_interviews(state: ResearchState):
     """ This is the "map" step where we run each interview sub-graph using Send API """
@@ -31,25 +18,21 @@ def initiate_all_interviews(state: ResearchState):
 
 async def write_report(state: ResearchState):
     # Full set of sections
-    sections = state.get("sections")
     topic = state.get("topic")
-    chapters = state.get("chapters")
+    chapters = state.get("chapters", [])
     LOGGER.debug(f"write_report: {state}")
     LOGGER.debug("-------------------")
 
     # Concat all sections together
-    formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
-    formatted_str_chapters = "\n\n".join(
-        [f"{chapter.chapter}" for chapter in chapters])
+    formatted_str_chapters = "\n\n".join([f"{chapter.description}" for chapter in chapters])
 
     # Summarize the sections into a final report
     prompt = get_prompt_builder().build_report_writer_instructions_prompt(
         topic=topic,
         chapters=formatted_str_chapters,
-        formatted_str_sections=formatted_str_sections
     )
     report = await llm_call(
-        llm=get_llm_graph(num_predict=4096),
+        llm=get_llm_graph(num_predict=4096, temperature=0.5),
         prompt=prompt
     )
 
@@ -64,19 +47,19 @@ async def write_report(state: ResearchState):
     }
 async def write_introduction(state: ResearchState):
     # Full set of sections
-    sections = state.get("sections")
+    chapters = state.get("chapters", [])
     topic = state.get("topic")
     LOGGER.debug(f"write_introduction: {state}")
     LOGGER.debug("-------------------")
 
     # Concat all sections together
-    formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
+    formatted_str_chapters = "\n\n".join([f"{chapter.description}" for chapter in chapters])
 
     # Summarize the sections into a final report
 
     prompt = get_prompt_builder().build_intro_instructions_prompt(
         topic=topic,
-        formatted_str_sections=formatted_str_sections
+        formatted_str_sections=formatted_str_chapters
     )
     intro = await llm_call(llm=get_llm_graph(), prompt=prompt)
 
@@ -92,19 +75,19 @@ async def write_introduction(state: ResearchState):
 
 async def write_conclusion(state: ResearchState):
     # Full set of sections
-    sections = state.get("sections")
+    chapters = state.get("chapters", [])
     topic = state.get("topic")
     LOGGER.debug(f"write_conclusion: {state}")
     LOGGER.debug("-------------------")
 
     # Concat all sections together
-    formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
+    formatted_str_chapters = "\n\n".join([f"{chapter.description}" for chapter in chapters])
 
     # Summarize the sections into a final report
 
     prompt = get_prompt_builder().build_conclusion_instructions_prompt(
         topic=topic,
-        formatted_str_sections=formatted_str_sections
+        formatted_str_sections=formatted_str_chapters
     )
     conclusion = await llm_call(llm=get_llm_graph(), prompt=prompt)
 
@@ -122,11 +105,9 @@ def finalize_report(state: ResearchState):
     """ This is the "reduce" step where we gather all the sections, combine them, and reflect on them to write the intro/conclusion """
     # Save full final report
     content = state.get("content")
-    if content.startswith("## Insights"):
-        content = content.strip("## Insights")
-    if "## Sources" in content:
+    if "## Источники" in content:
         try:
-            content, sources = content.split("\n## Sources\n")
+            content, sources = content.split("\n## Источники\n")
         except:
             sources = None
     else:
@@ -134,5 +115,5 @@ def finalize_report(state: ResearchState):
 
     final_report = state.get("introduction") + "\n\n" + content + "\n\n" + state.get("conclusion")
     if sources is not None:
-        final_report += "\n\n## Sources\n" + sources
+        final_report += "\n\n## Источники\n" + sources
     return {"final_report": final_report}

@@ -4,15 +4,13 @@ import traceback
 
 from langgraph.graph import StateGraph, START, END
 
-from src.configs.logger import LOGGER
+from src.depends import get_langfuse_handler
 from src.domains.llm_agent.app.requests.schemas import PostResearchRequest
-from src.infrastructure.graphs.generate_analysts.utils import create_analysts
 from src.infrastructure.graphs.interviewing.graph import InterviewingGraph
 from src.infrastructure.graphs.generate_analysts.graph import GenerateAnalystsGraph
 from src.infrastructure.graphs.research.schema import ResearchState
 from src.infrastructure.graphs.research.utils import write_report, write_introduction, write_conclusion, \
-    finalize_report, initiate_all_interviews, write_final_report
-from src.infrastructure.graphs.utils import get_langfuse_handler
+    finalize_report, initiate_all_interviews
 
 
 class GraphError(Exception):
@@ -61,7 +59,6 @@ class ResearchGraph:
             if research_response.get("final_report") is None:
                 raise GraphError("Final report is None")
 
-            write_final_report(data=research_response.get("final_report", ""))
             return research_response
         except Exception as e:
             logging.error(traceback.format_exc())

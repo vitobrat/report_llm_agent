@@ -26,13 +26,11 @@ async def create_analysts(state: GenerateAnalystsState) -> dict:
     )
     analysts = await llm_call(llm=structured_llm, prompt=query)
 
-    #Get metadata information
     metadata = MetadataClass(
         output_tokens=analysts.get("raw").usage_metadata.get("output_tokens"),
         input_tokens=analysts.get("raw").usage_metadata.get("input_tokens")
     )
 
-    # Write the list of analysis to state
     return {
         "analysts": analysts.get("parsed").analysts[:num_analysts],
         "metadata": metadata

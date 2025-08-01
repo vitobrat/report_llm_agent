@@ -111,3 +111,4 @@ generate_analysts_prompt: |
   4. The collection must show progression of expertise matching chapter sequence
   5. All text professionally written and error-free
   6. Names and affiliations realistic but not referencing real individuals
+  7. The entire text must be generated in English
